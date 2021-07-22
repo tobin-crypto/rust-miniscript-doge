@@ -434,14 +434,14 @@ impl<'a, Pk: MiniscriptKey, Ctx: ScriptContext> Iterator for PkPkhIter<'a, Pk, C
 #[cfg(test)]
 pub mod test {
     use super::{Miniscript, PkPkh};
-    use bitcoin;
-    use bitcoin::hashes::{hash160, ripemd160, sha256, sha256d, Hash};
-    use bitcoin::secp256k1;
+    use dogecoin;
+    use dogecoin::hashes::{hash160, ripemd160, sha256, sha256d, Hash};
+    use dogecoin::secp256k1;
     use miniscript::context::Segwitv0;
 
     pub type TestData = (
-        Miniscript<bitcoin::PublicKey, Segwitv0>,
-        Vec<bitcoin::PublicKey>,
+        Miniscript<dogecoin::PublicKey, Segwitv0>,
+        Vec<dogecoin::PublicKey>,
         Vec<hash160::Hash>,
         bool, // Indicates that the top-level contains public key or hashes
     );
@@ -464,10 +464,10 @@ pub mod test {
         ret
     }
 
-    pub fn gen_bitcoin_pubkeys(n: usize, compressed: bool) -> Vec<bitcoin::PublicKey> {
+    pub fn gen_bitcoin_pubkeys(n: usize, compressed: bool) -> Vec<dogecoin::PublicKey> {
         gen_secp_pubkeys(n)
             .into_iter()
-            .map(|key| bitcoin::PublicKey { key, compressed })
+            .map(|key| dogecoin::PublicKey { key, compressed })
             .collect()
     }
 
@@ -617,7 +617,7 @@ pub mod test {
                     return;
                 }
                 let ms = *ms.branches().first().unwrap_or(&&ms);
-                let r: Vec<PkPkh<bitcoin::PublicKey>> = if k.is_empty() {
+                let r: Vec<PkPkh<dogecoin::PublicKey>> = if k.is_empty() {
                     h.into_iter().map(|h| PkPkh::HashedPubkey(h)).collect()
                 } else {
                     k.into_iter().map(|k| PkPkh::PlainPubkey(k)).collect()
@@ -629,7 +629,7 @@ pub mod test {
     #[test]
     fn find_keys() {
         gen_testcases().into_iter().for_each(|(ms, k, _, _)| {
-            assert_eq!(ms.iter_pk().collect::<Vec<bitcoin::PublicKey>>(), k);
+            assert_eq!(ms.iter_pk().collect::<Vec<dogecoin::PublicKey>>(), k);
         })
     }
 
@@ -649,11 +649,11 @@ pub mod test {
     #[test]
     fn find_pubkeys_and_hashes() {
         gen_testcases().into_iter().for_each(|(ms, k, h, _)| {
-            let mut all: Vec<PkPkh<bitcoin::PublicKey>> =
+            let mut all: Vec<PkPkh<dogecoin::PublicKey>> =
                 k.into_iter().map(|k| PkPkh::PlainPubkey(k)).collect();
             all.extend(h.into_iter().map(|h| PkPkh::HashedPubkey(h)));
             assert_eq!(
-                ms.iter_pk_pkh().collect::<Vec<PkPkh<bitcoin::PublicKey>>>(),
+                ms.iter_pk_pkh().collect::<Vec<PkPkh<dogecoin::PublicKey>>>(),
                 all
             );
         })

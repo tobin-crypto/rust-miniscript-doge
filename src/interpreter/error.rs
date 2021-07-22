@@ -12,8 +12,8 @@
 // If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 //
 
-use bitcoin::hashes::{hash160, hex::ToHex};
-use bitcoin::{self, secp256k1};
+use dogecoin::hashes::{hash160, hex::ToHex};
+use dogecoin::{self, secp256k1};
 use std::{error, fmt};
 
 /// Detailed Error type for Interpreter
@@ -38,7 +38,7 @@ pub enum Error {
     /// MultiSig missing at least `1` witness elements out of `k + 1` required
     InsufficientSignaturesMultiSig,
     /// Signature failed to verify
-    InvalidSignature(bitcoin::PublicKey),
+    InvalidSignature(dogecoin::PublicKey),
     /// Last byte of this signature isn't a standard sighash type
     NonStandardSigHash(Vec<u8>),
     /// Miniscript error
@@ -58,7 +58,7 @@ pub enum Error {
     /// Any input witness apart from sat(sig) or nsat(0) leads to
     /// this error. This is network standardness assumption and miniscript only
     /// supports standard scripts
-    PkEvaluationError(bitcoin::PublicKey),
+    PkEvaluationError(dogecoin::PublicKey),
     /// The Public Key hash check for the given pubkey. This occurs in `PkH`
     /// node when the given key does not match to Hash in script.
     PkHashVerifyFail(hash160::Hash),

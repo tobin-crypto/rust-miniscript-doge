@@ -21,7 +21,7 @@ use miniscript::{descriptor::DescriptorType, DescriptorTrait};
 use std::str::FromStr;
 
 fn main() {
-    let my_descriptor = miniscript::Descriptor::<bitcoin::PublicKey>::from_str(
+    let my_descriptor = miniscript::Descriptor::<dogecoin::PublicKey>::from_str(
         "wsh(c:pk_k(020202020202020202020202020202020202020202020202020202020202020202))",
     )
     .unwrap();
@@ -32,7 +32,7 @@ fn main() {
     // Or they contain a combination of timelock and heightlock.
     assert!(my_descriptor.sanity_check().is_ok());
 
-    // Sometimes it is necesarry to have additional information to get the bitcoin::PublicKey
+    // Sometimes it is necesarry to have additional information to get the dogecoin::PublicKey
     // from the MiniscriptKey which can supplied by `to_pk_ctx` parameter. For example,
     // when calculating the script pubkey of a descriptor with xpubs, the secp context and
     // child information maybe required.
@@ -46,7 +46,7 @@ fn main() {
         "21020202020202020202020202020202020202020202020202020202020202020202ac"
     );
 
-    let desc = miniscript::Descriptor::<bitcoin::PublicKey>::from_str(
+    let desc = miniscript::Descriptor::<dogecoin::PublicKey>::from_str(
         "sh(wsh(c:pk_k(020202020202020202020202020202020202020202020202020202020202020202)))",
     )
     .unwrap();

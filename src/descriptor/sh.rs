@@ -20,7 +20,7 @@
 
 use std::{fmt, str::FromStr};
 
-use bitcoin::{self, blockdata::script, Script};
+use dogecoin::{self, blockdata::script, Script};
 
 use expression::{self, FromTree};
 use miniscript::context::ScriptContext;
@@ -204,15 +204,15 @@ impl<Pk: MiniscriptKey> DescriptorTrait<Pk> for Sh<Pk> {
         Ok(())
     }
 
-    fn address(&self, network: bitcoin::Network) -> Result<bitcoin::Address, Error>
+    fn address(&self, network: dogecoin::Network) -> Result<dogecoin::Address, Error>
     where
         Pk: ToPublicKey,
     {
         match self.inner {
-            ShInner::Wsh(ref wsh) => Ok(bitcoin::Address::p2sh(&wsh.script_pubkey(), network)),
-            ShInner::Wpkh(ref wpkh) => Ok(bitcoin::Address::p2sh(&wpkh.script_pubkey(), network)),
-            ShInner::SortedMulti(ref smv) => Ok(bitcoin::Address::p2sh(&smv.encode(), network)),
-            ShInner::Ms(ref ms) => Ok(bitcoin::Address::p2sh(&ms.encode(), network)),
+            ShInner::Wsh(ref wsh) => Ok(dogecoin::Address::p2sh(&wsh.script_pubkey(), network)),
+            ShInner::Wpkh(ref wpkh) => Ok(dogecoin::Address::p2sh(&wpkh.script_pubkey(), network)),
+            ShInner::SortedMulti(ref smv) => Ok(dogecoin::Address::p2sh(&smv.encode(), network)),
+            ShInner::Ms(ref ms) => Ok(dogecoin::Address::p2sh(&ms.encode(), network)),
         }
     }
 

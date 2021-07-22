@@ -1,5 +1,5 @@
 [package]
-name = "miniscript"
+name = "miniscript-doge"
 version = "5.1.0"
 authors = ["Andrew Poelstra <apoelstra@wpsoftware.net>, Sanket Kanjalkar <sanket1729@gmail.com>"]
 repository = "https://github.com/apoelstra/miniscript"
@@ -7,16 +7,16 @@ description = "Miniscript: a subset of Bitcoin Script designed for analysis"
 license = "CC0-1.0"
 
 [features]
-fuzztarget = ["bitcoin/fuzztarget"]
+fuzztarget = ["dogecoin/fuzztarget"]
 compiler = []
 trace = []
 unstable = []
 default = []
-use-serde = ["bitcoin/use-serde", "serde"]
-rand = ["bitcoin/rand"]
+use-serde = ["dogecoin/use-serde", "serde"]
+rand = ["dogecoin/rand"]
 
-[dependencies]
-bitcoin = "0.26.2"
+[dependencies.dogecoin]
+git = "https://github.com/tobin-crypto/rust-dogecoin"
 
 [dependencies.serde]
 version = "1.0"

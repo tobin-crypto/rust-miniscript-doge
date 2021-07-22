@@ -17,42 +17,42 @@
 extern crate bitcoin;
 extern crate miniscript;
 
-use bitcoin::secp256k1; // secp256k1 re-exported from rust-bitcoin
+use dogecoin::secp256k1; // secp256k1 re-exported from rust-bitcoin
 use miniscript::DescriptorTrait;
 use std::collections::HashMap;
 use std::str::FromStr;
 
 fn main() {
     // Avoid repeatedly typing a pretty-common descriptor type
-    type BitcoinDescriptor = miniscript::Descriptor<bitcoin::PublicKey>;
+    type BitcoinDescriptor = miniscript::Descriptor<dogecoin::PublicKey>;
 
     // Transaction which spends some output
-    let mut tx = bitcoin::Transaction {
+    let mut tx = dogecoin::Transaction {
         version: 2,
         lock_time: 0,
-        input: vec![bitcoin::TxIn {
+        input: vec![dogecoin::TxIn {
             previous_output: Default::default(),
-            script_sig: bitcoin::Script::new(),
+            script_sig: dogecoin::Script::new(),
             sequence: 0xffffffff,
             witness: vec![],
         }],
-        output: vec![bitcoin::TxOut {
-            script_pubkey: bitcoin::Script::new(),
+        output: vec![dogecoin::TxOut {
+            script_pubkey: dogecoin::Script::new(),
             value: 100_000_000,
         }],
     };
 
     #[cfg_attr(feature="cargo-fmt", rustfmt_skip)]
     let public_keys = vec![
-        bitcoin::PublicKey::from_slice(&[2; 33]).expect("key 1"),
-        bitcoin::PublicKey::from_slice(&[
+        dogecoin::PublicKey::from_slice(&[2; 33]).expect("key 1"),
+        dogecoin::PublicKey::from_slice(&[
             0x02,
             0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
             0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
             0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         ]).expect("key 2"),
-        bitcoin::PublicKey::from_slice(&[
+        dogecoin::PublicKey::from_slice(&[
             0x03,
             0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
             0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
@@ -71,7 +71,7 @@ fn main() {
              531d75c136272f127a5dc14acc0722301cbddc222262934151f140da345af177",
         )
         .unwrap(),
-        bitcoin::SigHashType::All,
+        dogecoin::SigHashType::All,
     );
 
     let descriptor_str = format!(
@@ -88,7 +88,7 @@ fn main() {
     // + 73*2(signature length + signatures + sighash bytes) + 1(dummy byte) = 258
     assert_eq!(my_descriptor.max_satisfaction_weight().unwrap(), 258);
 
-    // Sometimes it is necessary to have additional information to get the bitcoin::PublicKey
+    // Sometimes it is necessary to have additional information to get the dogecoin::PublicKey
     // from the MiniscriptKey which can supplied by `to_pk_ctx` parameter. For example,
     // when calculating the script pubkey of a descriptor with xpubs, the secp context and
     // child information maybe required.
@@ -111,7 +111,7 @@ fn main() {
     // Attempt to satisfy at age 0, height 0
     let original_txin = tx.input[0].clone();
 
-    let mut sigs = HashMap::<bitcoin::PublicKey, miniscript::BitcoinSig>::new();
+    let mut sigs = HashMap::<dogecoin::PublicKey, miniscript::BitcoinSig>::new();
 
     // Doesn't work with no signatures
     assert!(my_descriptor.satisfy(&mut tx.input[0], &sigs).is_err());

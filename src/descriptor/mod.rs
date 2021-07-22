@@ -29,8 +29,8 @@ use std::{
     str::{self, FromStr},
 };
 
-use bitcoin::secp256k1;
-use bitcoin::{self, Script};
+use dogecoin::secp256k1;
+use dogecoin::{self, Script};
 
 use self::checksum::verify_checksum;
 use expression;
@@ -85,7 +85,7 @@ pub trait DescriptorTrait<Pk: MiniscriptKey> {
 
     /// Computes the Bitcoin address of the descriptor, if one exists
     /// Some descriptors like pk() don't have any address.
-    fn address(&self, network: bitcoin::Network) -> Result<bitcoin::Address, Error>
+    fn address(&self, network: dogecoin::Network) -> Result<dogecoin::Address, Error>
     where
         Pk: ToPublicKey;
 
@@ -125,7 +125,7 @@ pub trait DescriptorTrait<Pk: MiniscriptKey> {
     /// Attempts to produce a satisfying witness and scriptSig to spend an
     /// output controlled by the given descriptor; add the data to a given
     /// `TxIn` output.
-    fn satisfy<S>(&self, txin: &mut bitcoin::TxIn, satisfier: S) -> Result<(), Error>
+    fn satisfy<S>(&self, txin: &mut dogecoin::TxIn, satisfier: S) -> Result<(), Error>
     where
         Pk: ToPublicKey,
         S: Satisfier<Pk>,
@@ -356,7 +356,7 @@ impl<Pk: MiniscriptKey> DescriptorTrait<Pk> for Descriptor<Pk> {
         }
     }
     /// Computes the Bitcoin address of the descriptor, if one exists
-    fn address(&self, network: bitcoin::Network) -> Result<bitcoin::Address, Error>
+    fn address(&self, network: dogecoin::Network) -> Result<dogecoin::Address, Error>
     where
         Pk: ToPublicKey,
     {
@@ -623,13 +623,13 @@ serde_string_impl_pk!(Descriptor, "a script descriptor");
 mod tests {
     use super::checksum::desc_checksum;
     use super::DescriptorTrait;
-    use bitcoin::blockdata::opcodes::all::{OP_CLTV, OP_CSV};
-    use bitcoin::blockdata::script::Instruction;
-    use bitcoin::blockdata::{opcodes, script};
-    use bitcoin::hashes::hex::FromHex;
-    use bitcoin::hashes::{hash160, sha256};
-    use bitcoin::util::bip32;
-    use bitcoin::{self, secp256k1, PublicKey};
+    use dogecoin::blockdata::opcodes::all::{OP_CLTV, OP_CSV};
+    use dogecoin::blockdata::script::Instruction;
+    use dogecoin::blockdata::{opcodes, script};
+    use dogecoin::hashes::hex::FromHex;
+    use dogecoin::hashes::{hash160, sha256};
+    use dogecoin::util::bip32;
+    use dogecoin::{self, secp256k1, PublicKey};
     use descriptor::key::Wildcard;
     use descriptor::{
         DescriptorPublicKey, DescriptorSecretKey, DescriptorSinglePub, DescriptorXKey,
@@ -741,7 +741,7 @@ mod tests {
             )
         );
         assert_eq!(
-            bare.address(bitcoin::Network::Bitcoin)
+            bare.address(dogecoin::Network::Bitcoin)
                 .unwrap_err()
                 .to_string(),
             "Bare descriptors don't have address"
@@ -750,7 +750,7 @@ mod tests {
         let pk = StdDescriptor::from_str(TEST_PK).unwrap();
         assert_eq!(
             pk.script_pubkey(),
-            bitcoin::Script::from(vec![
+            dogecoin::Script::from(vec![
                 0x21, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xac,
@@ -777,7 +777,7 @@ mod tests {
                 .into_script()
         );
         assert_eq!(
-            pkh.address(bitcoin::Network::Bitcoin,).unwrap().to_string(),
+            pkh.address(dogecoin::Network::Bitcoin,).unwrap().to_string(),
             "1D7nRvrRgzCg9kYBwhPH3j3Gs6SmsRg3Wq"
         );
 
@@ -798,7 +798,7 @@ mod tests {
                 .into_script()
         );
         assert_eq!(
-            wpkh.address(bitcoin::Network::Bitcoin,)
+            wpkh.address(dogecoin::Network::Bitcoin,)
                 .unwrap()
                 .to_string(),
             "bc1qsn57m9drscflq5nl76z6ny52hck5w4x5wqd9yt"
@@ -823,7 +823,7 @@ mod tests {
         );
         assert_eq!(
             shwpkh
-                .address(bitcoin::Network::Bitcoin,)
+                .address(dogecoin::Network::Bitcoin,)
                 .unwrap()
                 .to_string(),
             "3PjMEzoveVbvajcnDDuxcJhsuqPHgydQXq"
@@ -847,7 +847,7 @@ mod tests {
                 .into_script()
         );
         assert_eq!(
-            sh.address(bitcoin::Network::Bitcoin,).unwrap().to_string(),
+            sh.address(dogecoin::Network::Bitcoin,).unwrap().to_string(),
             "3HDbdvM9CQ6ASnQFUkWw6Z4t3qNwMesJE9"
         );
 
@@ -873,7 +873,7 @@ mod tests {
                 .into_script()
         );
         assert_eq!(
-            wsh.address(bitcoin::Network::Bitcoin,).unwrap().to_string(),
+            wsh.address(dogecoin::Network::Bitcoin,).unwrap().to_string(),
             "bc1qlymeahyfsv2jm3upw3urqp6m65ufde9seedl7umh0lth6yjt5zzsk33tv6"
         );
 
@@ -896,7 +896,7 @@ mod tests {
         );
         assert_eq!(
             shwsh
-                .address(bitcoin::Network::Bitcoin,)
+                .address(dogecoin::Network::Bitcoin,)
                 .unwrap()
                 .to_string(),
             "38cTksiyPT2b1uGRVbVqHdDhW9vKs84N6Z"
@@ -908,7 +908,7 @@ mod tests {
         let secp = secp256k1::Secp256k1::new();
         let sk =
             secp256k1::SecretKey::from_slice(&b"sally was a secret key, she said"[..]).unwrap();
-        let pk = bitcoin::PublicKey {
+        let pk = dogecoin::PublicKey {
             key: secp256k1::PublicKey::from_secret_key(&secp, &sk),
             compressed: true,
         };
@@ -920,13 +920,13 @@ mod tests {
 
         struct SimpleSat {
             sig: secp256k1::Signature,
-            pk: bitcoin::PublicKey,
+            pk: dogecoin::PublicKey,
         };
 
-        impl Satisfier<bitcoin::PublicKey> for SimpleSat {
-            fn lookup_sig(&self, pk: &bitcoin::PublicKey) -> Option<BitcoinSig> {
+        impl Satisfier<dogecoin::PublicKey> for SimpleSat {
+            fn lookup_sig(&self, pk: &dogecoin::PublicKey) -> Option<BitcoinSig> {
                 if *pk == self.pk {
-                    Some((self.sig, bitcoin::SigHashType::All))
+                    Some((self.sig, dogecoin::SigHashType::All))
                 } else {
                     None
                 }
@@ -936,9 +936,9 @@ mod tests {
         let satisfier = SimpleSat { sig, pk };
         let ms = ms_str!("c:pk_k({})", pk);
 
-        let mut txin = bitcoin::TxIn {
-            previous_output: bitcoin::OutPoint::default(),
-            script_sig: bitcoin::Script::new(),
+        let mut txin = dogecoin::TxIn {
+            previous_output: dogecoin::OutPoint::default(),
+            script_sig: dogecoin::Script::new(),
             sequence: 100,
             witness: vec![],
         };
@@ -947,21 +947,21 @@ mod tests {
         bare.satisfy(&mut txin, &satisfier).expect("satisfaction");
         assert_eq!(
             txin,
-            bitcoin::TxIn {
-                previous_output: bitcoin::OutPoint::default(),
+            dogecoin::TxIn {
+                previous_output: dogecoin::OutPoint::default(),
                 script_sig: script::Builder::new().push_slice(&sigser[..]).into_script(),
                 sequence: 100,
                 witness: vec![],
             }
         );
-        assert_eq!(bare.unsigned_script_sig(), bitcoin::Script::new());
+        assert_eq!(bare.unsigned_script_sig(), dogecoin::Script::new());
 
         let pkh = Descriptor::new_pkh(pk);
         pkh.satisfy(&mut txin, &satisfier).expect("satisfaction");
         assert_eq!(
             txin,
-            bitcoin::TxIn {
-                previous_output: bitcoin::OutPoint::default(),
+            dogecoin::TxIn {
+                previous_output: dogecoin::OutPoint::default(),
                 script_sig: script::Builder::new()
                     .push_slice(&sigser[..])
                     .push_key(&pk)
@@ -970,20 +970,20 @@ mod tests {
                 witness: vec![],
             }
         );
-        assert_eq!(pkh.unsigned_script_sig(), bitcoin::Script::new());
+        assert_eq!(pkh.unsigned_script_sig(), dogecoin::Script::new());
 
         let wpkh = Descriptor::new_wpkh(pk).unwrap();
         wpkh.satisfy(&mut txin, &satisfier).expect("satisfaction");
         assert_eq!(
             txin,
-            bitcoin::TxIn {
-                previous_output: bitcoin::OutPoint::default(),
-                script_sig: bitcoin::Script::new(),
+            dogecoin::TxIn {
+                previous_output: dogecoin::OutPoint::default(),
+                script_sig: dogecoin::Script::new(),
                 sequence: 100,
                 witness: vec![sigser.clone(), pk.to_bytes(),],
             }
         );
-        assert_eq!(wpkh.unsigned_script_sig(), bitcoin::Script::new());
+        assert_eq!(wpkh.unsigned_script_sig(), dogecoin::Script::new());
 
         let shwpkh = Descriptor::new_sh_wpkh(pk).unwrap();
         shwpkh.satisfy(&mut txin, &satisfier).expect("satisfaction");
@@ -995,8 +995,8 @@ mod tests {
             .into_script();
         assert_eq!(
             txin,
-            bitcoin::TxIn {
-                previous_output: bitcoin::OutPoint::default(),
+            dogecoin::TxIn {
+                previous_output: dogecoin::OutPoint::default(),
                 script_sig: script::Builder::new()
                     .push_slice(&redeem_script[..])
                     .into_script(),
@@ -1016,8 +1016,8 @@ mod tests {
         sh.satisfy(&mut txin, &satisfier).expect("satisfaction");
         assert_eq!(
             txin,
-            bitcoin::TxIn {
-                previous_output: bitcoin::OutPoint::default(),
+            dogecoin::TxIn {
+                previous_output: dogecoin::OutPoint::default(),
                 script_sig: script::Builder::new()
                     .push_slice(&sigser[..])
                     .push_slice(&ms.encode()[..])
@@ -1026,7 +1026,7 @@ mod tests {
                 witness: vec![],
             }
         );
-        assert_eq!(sh.unsigned_script_sig(), bitcoin::Script::new());
+        assert_eq!(sh.unsigned_script_sig(), dogecoin::Script::new());
 
         let ms = ms_str!("c:pk_k({})", pk);
 
@@ -1034,21 +1034,21 @@ mod tests {
         wsh.satisfy(&mut txin, &satisfier).expect("satisfaction");
         assert_eq!(
             txin,
-            bitcoin::TxIn {
-                previous_output: bitcoin::OutPoint::default(),
-                script_sig: bitcoin::Script::new(),
+            dogecoin::TxIn {
+                previous_output: dogecoin::OutPoint::default(),
+                script_sig: dogecoin::Script::new(),
                 sequence: 100,
                 witness: vec![sigser.clone(), ms.encode().into_bytes(),],
             }
         );
-        assert_eq!(wsh.unsigned_script_sig(), bitcoin::Script::new());
+        assert_eq!(wsh.unsigned_script_sig(), dogecoin::Script::new());
 
         let shwsh = Descriptor::new_sh_wsh(ms.clone()).unwrap();
         shwsh.satisfy(&mut txin, &satisfier).expect("satisfaction");
         assert_eq!(
             txin,
-            bitcoin::TxIn {
-                previous_output: bitcoin::OutPoint::default(),
+            dogecoin::TxIn {
+                previous_output: dogecoin::OutPoint::default(),
                 script_sig: script::Builder::new()
                     .push_slice(&ms.encode().to_v0_p2wsh()[..])
                     .into_script(),
@@ -1066,7 +1066,7 @@ mod tests {
 
     #[test]
     fn after_is_cltv() {
-        let descriptor = Descriptor::<bitcoin::PublicKey>::from_str("wsh(after(1000))").unwrap();
+        let descriptor = Descriptor::<dogecoin::PublicKey>::from_str("wsh(after(1000))").unwrap();
         let script = descriptor.explicit_script();
 
         let actual_instructions: Vec<_> = script.instructions().collect();
@@ -1077,7 +1077,7 @@ mod tests {
 
     #[test]
     fn older_is_csv() {
-        let descriptor = Descriptor::<bitcoin::PublicKey>::from_str("wsh(older(1000))").unwrap();
+        let descriptor = Descriptor::<dogecoin::PublicKey>::from_str("wsh(older(1000))").unwrap();
         let script = descriptor.explicit_script();
 
         let actual_instructions: Vec<_> = script.instructions().collect();
@@ -1088,7 +1088,7 @@ mod tests {
 
     #[test]
     fn roundtrip_tests() {
-        let descriptor = Descriptor::<bitcoin::PublicKey>::from_str("multi");
+        let descriptor = Descriptor::<dogecoin::PublicKey>::from_str("multi");
         assert_eq!(
             descriptor.unwrap_err().to_string(),
             "unexpected «no arguments given»"
@@ -1097,7 +1097,7 @@ mod tests {
 
     #[test]
     fn empty_thresh() {
-        let descriptor = Descriptor::<bitcoin::PublicKey>::from_str("thresh");
+        let descriptor = Descriptor::<dogecoin::PublicKey>::from_str("thresh");
         assert_eq!(
             descriptor.unwrap_err().to_string(),
             "unexpected «no arguments given»"
@@ -1107,36 +1107,36 @@ mod tests {
     #[test]
     fn witness_stack_for_andv_is_arranged_in_correct_order() {
         // arrange
-        let a = bitcoin::PublicKey::from_str(
+        let a = dogecoin::PublicKey::from_str(
             "02937402303919b3a2ee5edd5009f4236f069bf75667b8e6ecf8e5464e20116a0e",
         )
         .unwrap();
         let sig_a = secp256k1::Signature::from_str("3045022100a7acc3719e9559a59d60d7b2837f9842df30e7edcd754e63227e6168cec72c5d022066c2feba4671c3d99ea75d9976b4da6c86968dbf3bab47b1061e7a1966b1778c").unwrap();
 
-        let b = bitcoin::PublicKey::from_str(
+        let b = dogecoin::PublicKey::from_str(
             "02eb64639a17f7334bb5a1a3aad857d6fec65faef439db3de72f85c88bc2906ad3",
         )
         .unwrap();
         let sig_b = secp256k1::Signature::from_str("3044022075b7b65a7e6cd386132c5883c9db15f9a849a0f32bc680e9986398879a57c276022056d94d12255a4424f51c700ac75122cb354895c9f2f88f0cbb47ba05c9c589ba").unwrap();
 
-        let descriptor = Descriptor::<bitcoin::PublicKey>::from_str(&format!(
+        let descriptor = Descriptor::<dogecoin::PublicKey>::from_str(&format!(
             "wsh(and_v(v:pk({A}),pk({B})))",
             A = a,
             B = b
         ))
         .unwrap();
 
-        let mut txin = bitcoin::TxIn {
-            previous_output: bitcoin::OutPoint::default(),
-            script_sig: bitcoin::Script::new(),
+        let mut txin = dogecoin::TxIn {
+            previous_output: dogecoin::OutPoint::default(),
+            script_sig: dogecoin::Script::new(),
             sequence: 0,
             witness: vec![],
         };
         let satisfier = {
             let mut satisfier = HashMap::with_capacity(2);
 
-            satisfier.insert(a, (sig_a.clone(), ::bitcoin::SigHashType::All));
-            satisfier.insert(b, (sig_b.clone(), ::bitcoin::SigHashType::All));
+            satisfier.insert(a, (sig_a.clone(), ::dogecoin::SigHashType::All));
+            satisfier.insert(b, (sig_b.clone(), ::dogecoin::SigHashType::All));
 
             satisfier
         };
@@ -1261,7 +1261,7 @@ mod tests {
         // Raw (compressed) pubkey
         let key = "03f28773c2d975288bc7d1d205c3748651b075fbc6610e58cddeeddf8f19405aa8";
         let expected = DescriptorPublicKey::SinglePub(DescriptorSinglePub {
-            key: bitcoin::PublicKey::from_str(
+            key: dogecoin::PublicKey::from_str(
                 "03f28773c2d975288bc7d1d205c3748651b075fbc6610e58cddeeddf8f19405aa8",
             )
             .unwrap(),
@@ -1273,7 +1273,7 @@ mod tests {
         // Raw (uncompressed) pubkey
         let key = "04f5eeb2b10c944c6b9fbcfff94c35bdeecd93df977882babc7f3a2cf7f5c81d3b09a68db7f0e04f21de5d4230e75e6dbe7ad16eefe0d4325a62067dc6f369446a";
         let expected = DescriptorPublicKey::SinglePub(DescriptorSinglePub {
-            key: bitcoin::PublicKey::from_str(
+            key: dogecoin::PublicKey::from_str(
                 "04f5eeb2b10c944c6b9fbcfff94c35bdeecd93df977882babc7f3a2cf7f5c81d3b09a68db7f0e04f21de5d4230e75e6dbe7ad16eefe0d4325a62067dc6f369446a",
             )
             .unwrap(),
@@ -1286,7 +1286,7 @@ mod tests {
         let desc =
             "[78412e3a/0'/42/0']0231c7d3fc85c148717848033ce276ae2b464a4e2c367ed33886cc428b8af48ff8";
         let expected = DescriptorPublicKey::SinglePub(DescriptorSinglePub {
-            key: bitcoin::PublicKey::from_str(
+            key: dogecoin::PublicKey::from_str(
                 "0231c7d3fc85c148717848033ce276ae2b464a4e2c367ed33886cc428b8af48ff8",
             )
             .unwrap(),
@@ -1328,14 +1328,14 @@ mod tests {
             let addr_one = desc_one
                 .translate_pk2(|xpk| xpk.derive_public_key(&secp_ctx))
                 .unwrap()
-                .address(bitcoin::Network::Bitcoin)
+                .address(dogecoin::Network::Bitcoin)
                 .unwrap();
             let addr_two = desc_two
                 .translate_pk2(|xpk| xpk.derive_public_key(&secp_ctx))
                 .unwrap()
-                .address(bitcoin::Network::Bitcoin)
+                .address(dogecoin::Network::Bitcoin)
                 .unwrap();
-            let addr_expected = bitcoin::Address::from_str(raw_addr_expected).unwrap();
+            let addr_expected = dogecoin::Address::from_str(raw_addr_expected).unwrap();
             assert_eq!(addr_one, addr_expected);
             assert_eq!(addr_two, addr_expected);
         }

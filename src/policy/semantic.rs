@@ -17,8 +17,8 @@
 use std::str::FromStr;
 use std::{fmt, str};
 
-use bitcoin::hashes::hex::FromHex;
-use bitcoin::hashes::{hash160, ripemd160, sha256, sha256d};
+use dogecoin::hashes::hex::FromHex;
+use dogecoin::hashes::{hash160, ripemd160, sha256, sha256d};
 
 use super::concrete::PolicyError;
 use errstr;
@@ -84,7 +84,7 @@ impl<Pk: MiniscriptKey> Policy<Pk> {
     /// # Example
     ///
     /// ```
-    /// use miniscript::{bitcoin::{hashes::hash160, PublicKey}, policy::semantic::Policy};
+    /// use miniscript::{dogecoin::{hashes::hash160, PublicKey}, policy::semantic::Policy};
     /// use std::str::FromStr;
     /// let alice_pkh = "236ada020df3208d2517f4b0db03e16f92cd8cf1";
     /// let bob_pkh = "3e89b972416ae33870b4634d03b8cdc773200cac";
@@ -574,7 +574,7 @@ impl<Pk: MiniscriptKey> Policy<Pk> {
 
 #[cfg(test)]
 mod tests {
-    use bitcoin::PublicKey;
+    use dogecoin::PublicKey;
     use std::str::FromStr;
 
     use super::*;

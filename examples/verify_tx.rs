@@ -17,8 +17,8 @@
 extern crate bitcoin;
 extern crate miniscript;
 
-use bitcoin::consensus::Decodable;
-use bitcoin::secp256k1; // secp256k1 re-exported from rust-bitcoin
+use dogecoin::consensus::Decodable;
+use dogecoin::secp256k1; // secp256k1 re-exported from rust-bitcoin
 use std::str::FromStr;
 
 fn main() {
@@ -77,9 +77,9 @@ fn main() {
         0xe7, 0x87, 0x09, 0x5d, 0x07, 0x00,
     ];
     let transaction =
-        bitcoin::Transaction::consensus_decode(&mut &tx_bytes[..]).expect("decode transaction");
+        dogecoin::Transaction::consensus_decode(&mut &tx_bytes[..]).expect("decode transaction");
 
-    let spk_input_1 = bitcoin::Script::from(vec![
+    let spk_input_1 = dogecoin::Script::from(vec![
         0xa9, 0x14, 0x92, 0x09, 0xa8, 0xf9, 0x0c, 0x58, 0x4b, 0xb5, 0x97, 0x4d, 0x58, 0x68, 0x72,
         0x49, 0xe5, 0x32, 0xde, 0x59, 0xf4, 0xbc, 0x87,
     ]);
@@ -95,7 +95,7 @@ fn main() {
 
     let desc_string = interpreter.inferred_descriptor_string();
     println!("Descriptor: {}", desc_string);
-    miniscript::Descriptor::<bitcoin::PublicKey>::from_str(&desc_string)
+    miniscript::Descriptor::<dogecoin::PublicKey>::from_str(&desc_string)
         .expect("this descriptor can be reparsed with sanity checks passing");
     interpreter
         .inferred_descriptor()
@@ -119,7 +119,7 @@ fn main() {
     // 2. Example two: verify the signatures to ensure that invalid
     //    signatures are not treated as having participated in the script
     let secp = secp256k1::Secp256k1::new();
-    // Sometimes it is necessary to have additional information to get the bitcoin::PublicKey
+    // Sometimes it is necessary to have additional information to get the dogecoin::PublicKey
     // from the MiniscriptKey which can supplied by `to_pk_ctx` parameter. For example,
     // when calculating the script pubkey of a descriptor with xpubs, the secp context and
     // child information maybe required.
@@ -138,7 +138,7 @@ fn main() {
     // Restrict to sighash_all just to demonstrate how to add additional filters
     // `&_` needed here because of https://github.com/rust-lang/rust/issues/79187
     let vfyfn = move |pk: &_, bitcoinsig: miniscript::BitcoinSig| {
-        bitcoinsig.1 == bitcoin::SigHashType::All && vfyfn(pk, bitcoinsig)
+        bitcoinsig.1 == dogecoin::SigHashType::All && vfyfn(pk, bitcoinsig)
     };
 
     println!("\nExample two");
@@ -166,7 +166,7 @@ fn main() {
     .unwrap();
 
     let iter = interpreter.iter(|pk, (sig, sighashtype)| {
-        sighashtype == bitcoin::SigHashType::All && secp.verify(&message, &sig, &pk.key).is_ok()
+        sighashtype == dogecoin::SigHashType::All && secp.verify(&message, &sig, &pk.key).is_ok()
     });
     println!("\nExample three");
     for elem in iter {

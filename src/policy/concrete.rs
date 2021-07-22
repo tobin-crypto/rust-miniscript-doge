@@ -15,8 +15,8 @@
 //! Concrete Policies
 //!
 
-use bitcoin::hashes::hex::FromHex;
-use bitcoin::hashes::{hash160, ripemd160, sha256, sha256d};
+use dogecoin::hashes::hex::FromHex;
+use dogecoin::hashes::{hash160, ripemd160, sha256, sha256d};
 use std::collections::HashSet;
 use std::{error, fmt, str};
 
@@ -170,7 +170,7 @@ impl<Pk: MiniscriptKey> Policy<Pk> {
     /// # Example
     ///
     /// ```
-    /// use miniscript::{bitcoin::PublicKey, policy::concrete::Policy};
+    /// use miniscript::{dogecoin::PublicKey, policy::concrete::Policy};
     /// use std::str::FromStr;
     /// let alice_key = "0270cf3c71f65a3d93d285d9149fddeeb638f87a2d4d8cf16c525f71c417439777";
     /// let bob_key = "02f43b15c50a436f5335dbea8a64dd3b4e63e34c3b50c42598acb5f4f336b5d2fb";

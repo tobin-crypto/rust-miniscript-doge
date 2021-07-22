@@ -20,7 +20,7 @@
 
 use std::{fmt, str::FromStr};
 
-use bitcoin::{self, blockdata::script, Script};
+use dogecoin::{self, blockdata::script, Script};
 
 use expression::{self, FromTree};
 use miniscript::context::ScriptContext;
@@ -119,7 +119,7 @@ impl<Pk: MiniscriptKey> DescriptorTrait<Pk> for Bare<Pk> {
         Ok(())
     }
 
-    fn address(&self, _network: bitcoin::Network) -> Result<bitcoin::Address, Error>
+    fn address(&self, _network: dogecoin::Network) -> Result<dogecoin::Address, Error>
     where
         Pk: ToPublicKey,
     {
@@ -290,18 +290,18 @@ impl<Pk: MiniscriptKey> DescriptorTrait<Pk> for Pkh<Pk> {
         Ok(())
     }
 
-    fn address(&self, network: bitcoin::Network) -> Result<bitcoin::Address, Error>
+    fn address(&self, network: dogecoin::Network) -> Result<dogecoin::Address, Error>
     where
         Pk: ToPublicKey,
     {
-        Ok(bitcoin::Address::p2pkh(&self.pk.to_public_key(), network))
+        Ok(dogecoin::Address::p2pkh(&self.pk.to_public_key(), network))
     }
 
     fn script_pubkey(&self) -> Script
     where
         Pk: ToPublicKey,
     {
-        let addr = bitcoin::Address::p2pkh(&self.pk.to_public_key(), bitcoin::Network::Bitcoin);
+        let addr = dogecoin::Address::p2pkh(&self.pk.to_public_key(), dogecoin::Network::Bitcoin);
         addr.script_pubkey()
     }
 

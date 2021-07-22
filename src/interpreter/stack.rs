@@ -14,9 +14,9 @@
 
 //! Interpreter stack
 
-use bitcoin;
-use bitcoin::blockdata::{opcodes, script};
-use bitcoin::hashes::{hash160, ripemd160, sha256, sha256d, Hash};
+use dogecoin;
+use dogecoin::blockdata::{opcodes, script};
+use dogecoin::hashes::{hash160, ripemd160, sha256, sha256d, Hash};
 
 use {BitcoinSig, ToPublicKey};
 
@@ -60,7 +60,7 @@ impl<'txin> Element<'txin> {
     ///
     /// Supports `OP_1` but no other numbers since these are not used by Miniscript
     pub fn from_instruction(
-        ins: Result<script::Instruction<'txin>, bitcoin::blockdata::script::Error>,
+        ins: Result<script::Instruction<'txin>, dogecoin::blockdata::script::Error>,
     ) -> Result<Self, Error> {
         match ins {
             //Also covers the dissatisfied case as PushBytes0
@@ -129,10 +129,10 @@ impl<'txin> Stack<'txin> {
     pub fn evaluate_pk<'intp, F>(
         &mut self,
         verify_sig: F,
-        pk: &'intp bitcoin::PublicKey,
+        pk: &'intp dogecoin::PublicKey,
     ) -> Option<Result<SatisfiedConstraint<'intp, 'txin>, Error>>
     where
-        F: FnMut(&bitcoin::PublicKey, BitcoinSig) -> bool,
+        F: FnMut(&dogecoin::PublicKey, BitcoinSig) -> bool,
     {
         if let Some(sigser) = self.pop() {
             match sigser {
@@ -171,14 +171,14 @@ impl<'txin> Stack<'txin> {
         pkh: &'intp hash160::Hash,
     ) -> Option<Result<SatisfiedConstraint<'intp, 'txin>, Error>>
     where
-        F: FnOnce(&bitcoin::PublicKey, BitcoinSig) -> bool,
+        F: FnOnce(&dogecoin::PublicKey, BitcoinSig) -> bool,
     {
         if let Some(Element::Push(pk)) = self.pop() {
             let pk_hash = hash160::Hash::hash(pk);
             if pk_hash != *pkh {
                 return Some(Err(Error::PkHashVerifyFail(*pkh)));
             }
-            match bitcoin::PublicKey::from_slice(pk) {
+            match dogecoin::PublicKey::from_slice(pk) {
                 Ok(pk) => {
                     if let Some(sigser) = self.pop() {
                         match sigser {
@@ -364,10 +364,10 @@ impl<'txin> Stack<'txin> {
     pub fn evaluate_multi<'intp, F>(
         &mut self,
         verify_sig: F,
-        pk: &'intp bitcoin::PublicKey,
+        pk: &'intp dogecoin::PublicKey,
     ) -> Option<Result<SatisfiedConstraint<'intp, 'txin>, Error>>
     where
-        F: FnOnce(&bitcoin::PublicKey, BitcoinSig) -> bool,
+        F: FnOnce(&dogecoin::PublicKey, BitcoinSig) -> bool,
     {
         if let Some(witness_sig) = self.pop() {
             if let Element::Push(sigser) = witness_sig {

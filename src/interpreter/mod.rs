@@ -19,9 +19,9 @@
 //! assuming that the spent coin was descriptor controlled.
 //!
 
-use bitcoin::hashes::{hash160, ripemd160, sha256, sha256d};
-use bitcoin::util::bip143;
-use bitcoin::{self, secp256k1};
+use dogecoin::hashes::{hash160, ripemd160, sha256, sha256d};
+use dogecoin::util::bip143;
+use dogecoin::{self, secp256k1};
 use miniscript::context::NoChecks;
 use miniscript::ScriptContext;
 use Miniscript;
@@ -39,7 +39,7 @@ use self::stack::Stack;
 pub struct Interpreter<'txin> {
     inner: inner::Inner,
     stack: Stack<'txin>,
-    script_code: bitcoin::Script,
+    script_code: dogecoin::Script,
     age: u32,
     height: u32,
 }
@@ -52,8 +52,8 @@ impl<'txin> Interpreter<'txin> {
     /// function; otherwise, it should be a closure containing a sighash and
     /// secp context, which can actually verify a given signature.
     pub fn from_txdata(
-        spk: &bitcoin::Script,
-        script_sig: &'txin bitcoin::Script,
+        spk: &dogecoin::Script,
+        script_sig: &'txin dogecoin::Script,
         witness: &'txin [Vec<u8>],
         age: u32,
         height: u32,
@@ -81,7 +81,7 @@ impl<'txin> Interpreter<'txin> {
     ///
     /// Running the iterator through will consume the internal stack of the
     /// `Iterpreter`, and it should not be used again after this.
-    pub fn iter<'iter, F: FnMut(&bitcoin::PublicKey, BitcoinSig) -> bool>(
+    pub fn iter<'iter, F: FnMut(&dogecoin::PublicKey, BitcoinSig) -> bool>(
         &'iter mut self,
         verify_sig: F,
     ) -> Iter<'txin, 'iter, F> {
@@ -153,7 +153,7 @@ impl<'txin> Interpreter<'txin> {
     /// This may not represent the original descriptor used to produce the transaction,
     /// since it cannot distinguish between sorted and unsorted multisigs (and anyway
     /// it can only see the final keys, keyorigin info is lost in serializing to Bitcoin).
-    pub fn inferred_descriptor(&self) -> Result<Descriptor<bitcoin::PublicKey>, ::Error> {
+    pub fn inferred_descriptor(&self) -> Result<Descriptor<dogecoin::PublicKey>, ::Error> {
         use std::str::FromStr;
         Descriptor::from_str(&self.inferred_descriptor_string())
     }
@@ -166,10 +166,10 @@ impl<'txin> Interpreter<'txin> {
     /// the amount.
     pub fn sighash_message(
         &self,
-        unsigned_tx: &bitcoin::Transaction,
+        unsigned_tx: &dogecoin::Transaction,
         input_idx: usize,
         amount: u64,
-        sighash_type: bitcoin::SigHashType,
+        sighash_type: dogecoin::SigHashType,
     ) -> secp256k1::Message {
         let hash = if self.is_legacy() {
             unsigned_tx.signature_hash(input_idx, &self.script_code, sighash_type.as_u32())
@@ -186,46 +186,46 @@ impl<'txin> Interpreter<'txin> {
     pub fn sighash_verify<'a, C: secp256k1::Verification>(
         &self,
         secp: &'a secp256k1::Secp256k1<C>,
-        unsigned_tx: &'a bitcoin::Transaction,
+        unsigned_tx: &'a dogecoin::Transaction,
         input_idx: usize,
         amount: u64,
-    ) -> impl Fn(&bitcoin::PublicKey, BitcoinSig) -> bool + 'a {
+    ) -> impl Fn(&dogecoin::PublicKey, BitcoinSig) -> bool + 'a {
         // Precompute all sighash types because the borrowck doesn't like us
         // pulling self into the closure
         let sighashes = [
-            self.sighash_message(unsigned_tx, input_idx, amount, bitcoin::SigHashType::All),
-            self.sighash_message(unsigned_tx, input_idx, amount, bitcoin::SigHashType::None),
-            self.sighash_message(unsigned_tx, input_idx, amount, bitcoin::SigHashType::Single),
+            self.sighash_message(unsigned_tx, input_idx, amount, dogecoin::SigHashType::All),
+            self.sighash_message(unsigned_tx, input_idx, amount, dogecoin::SigHashType::None),
+            self.sighash_message(unsigned_tx, input_idx, amount, dogecoin::SigHashType::Single),
             self.sighash_message(
                 unsigned_tx,
                 input_idx,
                 amount,
-                bitcoin::SigHashType::AllPlusAnyoneCanPay,
+                dogecoin::SigHashType::AllPlusAnyoneCanPay,
             ),
             self.sighash_message(
                 unsigned_tx,
                 input_idx,
                 amount,
-                bitcoin::SigHashType::NonePlusAnyoneCanPay,
+                dogecoin::SigHashType::NonePlusAnyoneCanPay,
             ),
             self.sighash_message(
                 unsigned_tx,
                 input_idx,
                 amount,
-                bitcoin::SigHashType::SinglePlusAnyoneCanPay,
+                dogecoin::SigHashType::SinglePlusAnyoneCanPay,
             ),
         ];
 
-        move |pk: &bitcoin::PublicKey, (sig, sighash_type)| {
+        move |pk: &dogecoin::PublicKey, (sig, sighash_type)| {
             // This is an awkward way to do this lookup, but it lets us do exhaustiveness
             // checking in case future rust-bitcoin versions add new sighash types
             let sighash = match sighash_type {
-                bitcoin::SigHashType::All => sighashes[0],
-                bitcoin::SigHashType::None => sighashes[1],
-                bitcoin::SigHashType::Single => sighashes[2],
-                bitcoin::SigHashType::AllPlusAnyoneCanPay => sighashes[3],
-                bitcoin::SigHashType::NonePlusAnyoneCanPay => sighashes[4],
-                bitcoin::SigHashType::SinglePlusAnyoneCanPay => sighashes[5],
+                dogecoin::SigHashType::All => sighashes[0],
+                dogecoin::SigHashType::None => sighashes[1],
+                dogecoin::SigHashType::Single => sighashes[2],
+                dogecoin::SigHashType::AllPlusAnyoneCanPay => sighashes[3],
+                dogecoin::SigHashType::NonePlusAnyoneCanPay => sighashes[4],
+                dogecoin::SigHashType::SinglePlusAnyoneCanPay => sighashes[5],
             };
             secp.verify(&sighash, &sig, &pk.key).is_ok()
         }
@@ -253,7 +253,7 @@ pub enum SatisfiedConstraint<'intp, 'txin> {
     ///Public key and corresponding signature
     PublicKey {
         /// The bitcoin key
-        key: &'intp bitcoin::PublicKey,
+        key: &'intp dogecoin::PublicKey,
         /// corresponding signature
         sig: secp256k1::Signature,
     },
@@ -262,7 +262,7 @@ pub enum SatisfiedConstraint<'intp, 'txin> {
         /// The pubkey hash
         keyhash: &'intp hash160::Hash,
         /// Corresponding public key
-        key: bitcoin::PublicKey,
+        key: dogecoin::PublicKey,
         /// Corresponding signature for the hash
         sig: secp256k1::Signature,
     },
@@ -293,7 +293,7 @@ pub enum SatisfiedConstraint<'intp, 'txin> {
 ///depending on evaluation of the children.
 struct NodeEvaluationState<'intp> {
     ///The node which is being evaluated
-    node: &'intp Miniscript<bitcoin::PublicKey, NoChecks>,
+    node: &'intp Miniscript<dogecoin::PublicKey, NoChecks>,
     ///number of children evaluated
     n_evaluated: usize,
     ///number of children satisfied
@@ -311,9 +311,9 @@ struct NodeEvaluationState<'intp> {
 ///
 /// In case the script is actually dissatisfied, this may return several values
 /// before ultimately returning an error.
-pub struct Iter<'intp, 'txin: 'intp, F: FnMut(&bitcoin::PublicKey, BitcoinSig) -> bool> {
+pub struct Iter<'intp, 'txin: 'intp, F: FnMut(&dogecoin::PublicKey, BitcoinSig) -> bool> {
     verify_sig: F,
-    public_key: Option<&'intp bitcoin::PublicKey>,
+    public_key: Option<&'intp dogecoin::PublicKey>,
     state: Vec<NodeEvaluationState<'intp>>,
     stack: &'intp mut Stack<'txin>,
     age: u32,
@@ -325,7 +325,7 @@ pub struct Iter<'intp, 'txin: 'intp, F: FnMut(&bitcoin::PublicKey, BitcoinSig) -
 impl<'intp, 'txin: 'intp, F> Iterator for Iter<'intp, 'txin, F>
 where
     NoChecks: ScriptContext,
-    F: FnMut(&bitcoin::PublicKey, BitcoinSig) -> bool,
+    F: FnMut(&dogecoin::PublicKey, BitcoinSig) -> bool,
 {
     type Item = Result<SatisfiedConstraint<'intp, 'txin>, Error>;
 
@@ -346,12 +346,12 @@ where
 impl<'intp, 'txin: 'intp, F> Iter<'intp, 'txin, F>
 where
     NoChecks: ScriptContext,
-    F: FnMut(&bitcoin::PublicKey, BitcoinSig) -> bool,
+    F: FnMut(&dogecoin::PublicKey, BitcoinSig) -> bool,
 {
     /// Helper function to push a NodeEvaluationState on state stack
     fn push_evaluation_state(
         &mut self,
-        node: &'intp Miniscript<bitcoin::PublicKey, NoChecks>,
+        node: &'intp Miniscript<dogecoin::PublicKey, NoChecks>,
         n_evaluated: usize,
         n_satisfied: usize,
     ) -> () {
@@ -750,14 +750,14 @@ where
 /// Helper function to verify serialized signature
 fn verify_sersig<'txin, F>(
     verify_sig: F,
-    pk: &bitcoin::PublicKey,
+    pk: &dogecoin::PublicKey,
     sigser: &[u8],
 ) -> Result<secp256k1::Signature, Error>
 where
-    F: FnOnce(&bitcoin::PublicKey, BitcoinSig) -> bool,
+    F: FnOnce(&dogecoin::PublicKey, BitcoinSig) -> bool,
 {
     if let Some((sighash_byte, sig)) = sigser.split_last() {
-        let sighashtype = bitcoin::SigHashType::from_u32_standard(*sighash_byte as u32)
+        let sighashtype = dogecoin::SigHashType::from_u32_standard(*sighash_byte as u32)
             .map_err(|_| Error::NonStandardSigHash([sig, &[*sighash_byte]].concat().to_vec()))?;
         let sig = secp256k1::Signature::from_der(sig)?;
         if verify_sig(pk, (sig, sighashtype)) {
@@ -774,9 +774,9 @@ where
 mod tests {
 
     use super::*;
-    use bitcoin;
-    use bitcoin::hashes::{hash160, ripemd160, sha256, sha256d, Hash};
-    use bitcoin::secp256k1::{self, Secp256k1, VerifyOnly};
+    use dogecoin;
+    use dogecoin::hashes::{hash160, ripemd160, sha256, sha256d, Hash};
+    use dogecoin::secp256k1::{self, Secp256k1, VerifyOnly};
     use miniscript::context::NoChecks;
     use BitcoinSig;
     use Miniscript;
@@ -786,7 +786,7 @@ mod tests {
     fn setup_keys_sigs(
         n: usize,
     ) -> (
-        Vec<bitcoin::PublicKey>,
+        Vec<dogecoin::PublicKey>,
         Vec<Vec<u8>>,
         Vec<secp256k1::Signature>,
         secp256k1::Message,
@@ -806,7 +806,7 @@ mod tests {
             sk[2] = (i >> 16) as u8;
 
             let sk = secp256k1::SecretKey::from_slice(&sk[..]).expect("secret key");
-            let pk = bitcoin::PublicKey {
+            let pk = dogecoin::PublicKey {
                 key: secp256k1::PublicKey::from_secret_key(&secp_sign, &sk),
                 compressed: true,
             };
@@ -824,15 +824,15 @@ mod tests {
     fn sat_constraints() {
         let (pks, der_sigs, secp_sigs, sighash, secp) = setup_keys_sigs(10);
         let vfyfn_ =
-            |pk: &bitcoin::PublicKey, (sig, _)| secp.verify(&sighash, &sig, &pk.key).is_ok();
+            |pk: &dogecoin::PublicKey, (sig, _)| secp.verify(&sighash, &sig, &pk.key).is_ok();
 
         fn from_stack<'txin, 'elem, F>(
             verify_fn: F,
             stack: &'elem mut Stack<'txin>,
-            ms: &'elem Miniscript<bitcoin::PublicKey, NoChecks>,
+            ms: &'elem Miniscript<dogecoin::PublicKey, NoChecks>,
         ) -> Iter<'elem, 'txin, F>
         where
-            F: FnMut(&bitcoin::PublicKey, BitcoinSig) -> bool,
+            F: FnMut(&dogecoin::PublicKey, BitcoinSig) -> bool,
         {
             Iter {
                 verify_sig: verify_fn,

@@ -1,6 +1,6 @@
 use std::{error, fmt, str::FromStr};
 
-use bitcoin::{
+use dogecoin::{
     self,
     hashes::hex::FromHex,
     hashes::Hash,
@@ -28,7 +28,7 @@ pub struct DescriptorSinglePub {
     /// Origin information
     pub origin: Option<(bip32::Fingerprint, bip32::DerivationPath)>,
     /// The key
-    pub key: bitcoin::PublicKey,
+    pub key: dogecoin::PublicKey,
 }
 
 /// A Single Descriptor Secret Key with optional origin information
@@ -37,7 +37,7 @@ pub struct DescriptorSinglePriv {
     /// Origin information
     pub origin: Option<bip32::KeySource>,
     /// The key
-    pub key: bitcoin::PrivateKey,
+    pub key: dogecoin::PrivateKey,
 }
 
 /// A Secret Key that can be either a single key or an Xprv
@@ -309,7 +309,7 @@ impl FromStr for DescriptorPublicKey {
                     "Only publickeys with prefixes 02/03/04 are allowed",
                 ));
             }
-            let key = bitcoin::PublicKey::from_str(key_part)
+            let key = dogecoin::PublicKey::from_str(key_part)
                 .map_err(|_| DescriptorKeyParseError("Error while parsing simple public key"))?;
             Ok(DescriptorPublicKey::SinglePub(DescriptorSinglePub {
                 key,
@@ -439,7 +439,7 @@ impl DescriptorPublicKey {
     pub fn derive_public_key<C: secp256k1::Verification>(
         &self,
         secp: &Secp256k1<C>,
-    ) -> Result<bitcoin::PublicKey, ConversionError> {
+    ) -> Result<dogecoin::PublicKey, ConversionError> {
         match *self {
             DescriptorPublicKey::SinglePub(ref pk) => Ok(pk.key),
             DescriptorPublicKey::XPub(ref xpk) => match xpk.wildcard {
@@ -464,7 +464,7 @@ impl FromStr for DescriptorSecretKey {
         let (key_part, origin) = DescriptorXKey::<bip32::ExtendedPubKey>::parse_xkey_origin(s)?;
 
         if key_part.len() <= 52 {
-            let sk = bitcoin::PrivateKey::from_str(key_part)
+            let sk = dogecoin::PrivateKey::from_str(key_part)
                 .map_err(|_| DescriptorKeyParseError("Error while parsing a WIF private key"))?;
             Ok(DescriptorSecretKey::SinglePriv(DescriptorSinglePriv {
                 key: sk,
@@ -590,10 +590,10 @@ impl<K: InnerXKey> DescriptorXKey<K> {
     /// ```
     /// # use std::str::FromStr;
     /// # fn body() -> Result<(), Box<dyn std::error::Error>> {
-    /// use miniscript::bitcoin::util::bip32;
+    /// use miniscript::dogecoin::util::bip32;
     /// use miniscript::descriptor::DescriptorPublicKey;
     ///
-    /// let ctx = miniscript::bitcoin::secp256k1::Secp256k1::signing_only();
+    /// let ctx = miniscript::dogecoin::secp256k1::Secp256k1::signing_only();
     ///
     /// let key = DescriptorPublicKey::from_str("[d34db33f/44'/0'/0']xpub6ERApfZwUNrhLCkDtcHTcxd75RbzS1ed54G1LkBUHQVHQKqhMkhgbmJbZRkrgZw4koxb5JaHWkY4ALHY2grBGRjaDMzQLcgJvLJuZZvRcEL/1/*")?;
     /// let xpub = match key {
@@ -672,7 +672,7 @@ impl MiniscriptKey for DescriptorPublicKey {
 mod test {
     use super::{DescriptorKeyParseError, DescriptorPublicKey, DescriptorSecretKey};
 
-    use bitcoin::secp256k1;
+    use dogecoin::secp256k1;
 
     use std::str::FromStr;
 

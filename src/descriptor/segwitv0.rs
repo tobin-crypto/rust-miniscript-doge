@@ -18,7 +18,7 @@
 
 use std::{fmt, str::FromStr};
 
-use bitcoin::{self, Script};
+use dogecoin::{self, Script};
 
 use expression::{self, FromTree};
 use miniscript::context::{ScriptContext, ScriptContextError};
@@ -167,13 +167,13 @@ impl<Pk: MiniscriptKey> DescriptorTrait<Pk> for Wsh<Pk> {
         Ok(())
     }
 
-    fn address(&self, network: bitcoin::Network) -> Result<bitcoin::Address, Error>
+    fn address(&self, network: dogecoin::Network) -> Result<dogecoin::Address, Error>
     where
         Pk: ToPublicKey,
     {
         match self.inner {
-            WshInner::SortedMulti(ref smv) => Ok(bitcoin::Address::p2wsh(&smv.encode(), network)),
-            WshInner::Ms(ref ms) => Ok(bitcoin::Address::p2wsh(&ms.encode(), network)),
+            WshInner::SortedMulti(ref smv) => Ok(dogecoin::Address::p2wsh(&smv.encode(), network)),
+            WshInner::Ms(ref ms) => Ok(dogecoin::Address::p2wsh(&ms.encode(), network)),
         }
     }
 
@@ -382,11 +382,11 @@ impl<Pk: MiniscriptKey> DescriptorTrait<Pk> for Wpkh<Pk> {
         }
     }
 
-    fn address(&self, network: bitcoin::Network) -> Result<bitcoin::Address, Error>
+    fn address(&self, network: dogecoin::Network) -> Result<dogecoin::Address, Error>
     where
         Pk: ToPublicKey,
     {
-        Ok(bitcoin::Address::p2wpkh(&self.pk.to_public_key(), network)
+        Ok(dogecoin::Address::p2wpkh(&self.pk.to_public_key(), network)
             .expect("Rust Miniscript types don't allow uncompressed pks in segwit descriptors"))
     }
 
@@ -394,7 +394,7 @@ impl<Pk: MiniscriptKey> DescriptorTrait<Pk> for Wpkh<Pk> {
     where
         Pk: ToPublicKey,
     {
-        let addr = bitcoin::Address::p2wpkh(&self.pk.to_public_key(), bitcoin::Network::Bitcoin)
+        let addr = dogecoin::Address::p2wpkh(&self.pk.to_public_key(), dogecoin::Network::Bitcoin)
             .expect("wpkh descriptors have compressed keys");
         addr.script_pubkey()
     }
@@ -441,7 +441,7 @@ impl<Pk: MiniscriptKey> DescriptorTrait<Pk> for Wpkh<Pk> {
         // the previous txo's scriptPubKey.
         // The item 5:
         //     - For P2WPKH witness program, the scriptCode is `0x1976a914{20-byte-pubkey-hash}88ac`.
-        let addr = bitcoin::Address::p2pkh(&self.pk.to_public_key(), bitcoin::Network::Bitcoin);
+        let addr = dogecoin::Address::p2pkh(&self.pk.to_public_key(), dogecoin::Network::Bitcoin);
         addr.script_pubkey()
     }
 }

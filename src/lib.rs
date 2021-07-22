@@ -61,7 +61,7 @@
 //!
 //! fn main() {
 //!     let desc = miniscript::Descriptor::<
-//!         bitcoin::PublicKey,
+//!         dogecoin::PublicKey,
 //!     >::from_str("\
 //!         sh(wsh(or_d(\
 //!             c:pk_k(020e0338c96a8870479f2396c373cc7696ba124e8635d41b0ea581112b67817261),\
@@ -71,7 +71,7 @@
 //!
 //!     // Derive the P2SH address
 //!     assert_eq!(
-//!         desc.address(bitcoin::Network::Bitcoin).unwrap().to_string(),
+//!         desc.address(dogecoin::Network::Bitcoin).unwrap().to_string(),
 //!         "3CJxbQBfWAe1ZkKiGQNEYrioV73ZwvBWns"
 //!     );
 //!
@@ -99,7 +99,7 @@
 #![deny(unused_imports)]
 #![deny(missing_docs)]
 
-pub extern crate bitcoin;
+pub extern crate dogecoin;
 #[cfg(feature = "serde")]
 pub extern crate serde;
 #[cfg(all(test, feature = "unstable"))]
@@ -120,8 +120,8 @@ mod util;
 use std::str::FromStr;
 use std::{error, fmt, hash, str};
 
-use bitcoin::blockdata::{opcodes, script};
-use bitcoin::hashes::{hash160, sha256, Hash};
+use dogecoin::blockdata::{opcodes, script};
+use dogecoin::hashes::{hash160, sha256, Hash};
 
 pub use descriptor::{Descriptor, DescriptorPublicKey, DescriptorTrait};
 pub use interpreter::Interpreter;
@@ -154,9 +154,9 @@ pub trait MiniscriptKey: Clone + Eq + Ord + fmt::Debug + fmt::Display + hash::Ha
     }
 }
 
-impl MiniscriptKey for bitcoin::PublicKey {
+impl MiniscriptKey for dogecoin::PublicKey {
     /// `is_uncompressed` returns true only for
-    /// bitcoin::Publickey type if the underlying key is uncompressed.
+    /// dogecoin::Publickey type if the underlying key is uncompressed.
     fn is_uncompressed(&self) -> bool {
         !self.compressed
     }
@@ -181,7 +181,7 @@ impl MiniscriptKey for String {
 /// Trait describing public key types which can be converted to bitcoin pubkeys
 pub trait ToPublicKey: MiniscriptKey {
     /// Converts an object to a public key
-    fn to_public_key(&self) -> bitcoin::PublicKey;
+    fn to_public_key(&self) -> dogecoin::PublicKey;
 
     /// Converts a hashed version of the public key to a `hash160` hash.
     ///
@@ -192,8 +192,8 @@ pub trait ToPublicKey: MiniscriptKey {
     fn hash_to_hash160(hash: &<Self as MiniscriptKey>::Hash) -> hash160::Hash;
 }
 
-impl ToPublicKey for bitcoin::PublicKey {
-    fn to_public_key(&self) -> bitcoin::PublicKey {
+impl ToPublicKey for dogecoin::PublicKey {
+    fn to_public_key(&self) -> dogecoin::PublicKey {
         *self
     }
 
@@ -238,8 +238,8 @@ impl fmt::Display for DummyKey {
 }
 
 impl ToPublicKey for DummyKey {
-    fn to_public_key(&self) -> bitcoin::PublicKey {
-        bitcoin::PublicKey::from_str(
+    fn to_public_key(&self) -> dogecoin::PublicKey {
+        dogecoin::PublicKey::from_str(
             "0250863ad64a87ae8a2fe83c1af1a8403cb53f53e486d8511dad8a04887e5b2352",
         )
         .unwrap()
@@ -482,11 +482,11 @@ pub enum Error {
     /// Parsed a miniscript but there were more script opcodes after it
     Trailing(String),
     /// Failed to parse a push as a public key
-    BadPubkey(bitcoin::util::key::Error),
+    BadPubkey(dogecoin::util::key::Error),
     /// Could not satisfy a script (fragment) because of a missing hash preimage
     MissingHash(sha256::Hash),
     /// Could not satisfy a script (fragment) because of a missing signature
-    MissingSig(bitcoin::PublicKey),
+    MissingSig(dogecoin::PublicKey),
     /// Could not satisfy, relative locktime not met
     RelativeLocktimeNotMet(u32),
     /// Could not satisfy, absolute locktime not met
@@ -498,7 +498,7 @@ pub enum Error {
     /// General error in creating descriptor
     BadDescriptor(String),
     /// Forward-secp related errors
-    Secp(bitcoin::secp256k1::Error),
+    Secp(dogecoin::secp256k1::Error),
     #[cfg(feature = "compiler")]
     /// Compiler related errors
     CompilerError(policy::compiler::CompilerError),
@@ -556,8 +556,8 @@ impl From<miniscript::analyzable::AnalysisError> for Error {
 }
 
 #[doc(hidden)]
-impl From<bitcoin::secp256k1::Error> for Error {
-    fn from(e: bitcoin::secp256k1::Error) -> Error {
+impl From<dogecoin::secp256k1::Error> for Error {
+    fn from(e: dogecoin::secp256k1::Error) -> Error {
         Error::Secp(e)
     }
 }
@@ -692,7 +692,7 @@ fn push_opcode_size(script_size: usize) -> usize {
 
 /// Helper function used by tests
 #[cfg(test)]
-fn hex_script(s: &str) -> bitcoin::Script {
-    let v: Vec<u8> = bitcoin::hashes::hex::FromHex::from_hex(s).unwrap();
-    bitcoin::Script::from(v)
+fn hex_script(s: &str) -> dogecoin::Script {
+    let v: Vec<u8> = dogecoin::hashes::hex::FromHex::from_hex(s).unwrap();
+    dogecoin::Script::from(v)
 }

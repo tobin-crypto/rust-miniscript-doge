@@ -143,7 +143,7 @@ pub trait ScriptContext:
     /// Or some of the script resource limits may have been exceeded.
     /// These miniscripts would never be accepted by the Bitcoin network and hence
     /// it is safe to discard them
-    /// For example, in Segwit Context with MiniscriptKey as bitcoin::PublicKey
+    /// For example, in Segwit Context with MiniscriptKey as dogecoin::PublicKey
     /// uncompressed public keys are non-standard and thus invalid.
     /// In LegacyP2SH context, scripts above 520 bytes are invalid.
     /// Post Tapscript upgrade, this would have to consider other nodes.
@@ -158,7 +158,7 @@ pub trait ScriptContext:
     /// may have been exceeded under the current bitcoin core policy rules
     /// These miniscripts would never be accepted by the Bitcoin network and hence
     /// it is safe to discard them. (unless explicitly disabled by non-standard flag)
-    /// For example, in Segwit Context with MiniscriptKey as bitcoin::PublicKey
+    /// For example, in Segwit Context with MiniscriptKey as dogecoin::PublicKey
     /// scripts over 3600 bytes are invalid.
     /// Post Tapscript upgrade, this would have to consider other nodes.
     /// This does *NOT* recursively check the miniscript fragments.

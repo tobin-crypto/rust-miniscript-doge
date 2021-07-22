@@ -17,9 +17,9 @@
 //! Functionality to parse a Bitcoin Script into a `Miniscript`
 //!
 
-use bitcoin::hashes::{hash160, ripemd160, sha256, sha256d, Hash};
+use dogecoin::hashes::{hash160, ripemd160, sha256, sha256d, Hash};
 use std::marker::PhantomData;
-use {bitcoin, Miniscript};
+use {dogecoin, Miniscript};
 
 use miniscript::lex::{Token as Tk, TokenIter};
 use miniscript::types::extra_props::ExtData;
@@ -217,7 +217,7 @@ impl<Pk: MiniscriptKey, Ctx: ScriptContext> TerminalStack<Pk, Ctx> {
 #[allow(unreachable_patterns)]
 pub fn parse<Ctx: ScriptContext>(
     tokens: &mut TokenIter,
-) -> Result<Miniscript<bitcoin::PublicKey, Ctx>, Error> {
+) -> Result<Miniscript<dogecoin::PublicKey, Ctx>, Error> {
     let mut non_term = Vec::with_capacity(tokens.len());
     let mut term = TerminalStack(Vec::with_capacity(tokens.len()));
 

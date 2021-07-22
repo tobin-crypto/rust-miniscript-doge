@@ -1159,8 +1159,8 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use bitcoin::blockdata::{opcodes, script};
-    use bitcoin::{self, hashes, secp256k1, SigHashType};
+    use dogecoin::blockdata::{opcodes, script};
+    use dogecoin::{self, hashes, secp256k1, SigHashType};
     use std::collections::HashMap;
     use std::str::FromStr;
     use std::string::String;
@@ -1171,11 +1171,11 @@ mod tests {
     use BitcoinSig;
 
     type SPolicy = Concrete<String>;
-    type BPolicy = Concrete<bitcoin::PublicKey>;
+    type BPolicy = Concrete<dogecoin::PublicKey>;
     type DummySegwitAstElemExt = policy::compiler::AstElemExt<String, Segwitv0>;
-    type SegwitMiniScript = Miniscript<bitcoin::PublicKey, Segwitv0>;
+    type SegwitMiniScript = Miniscript<dogecoin::PublicKey, Segwitv0>;
 
-    fn pubkeys_and_a_sig(n: usize) -> (Vec<bitcoin::PublicKey>, secp256k1::Signature) {
+    fn pubkeys_and_a_sig(n: usize) -> (Vec<dogecoin::PublicKey>, secp256k1::Signature) {
         let mut ret = Vec::with_capacity(n);
         let secp = secp256k1::Secp256k1::new();
         let mut sk = [0; 32];
@@ -1184,7 +1184,7 @@ mod tests {
             sk[1] = (i >> 8) as u8;
             sk[2] = (i >> 16) as u8;
 
-            let pk = bitcoin::PublicKey {
+            let pk = dogecoin::PublicKey {
                 key: secp256k1::PublicKey::from_secret_key(
                     &secp,
                     &secp256k1::SecretKey::from_slice(&sk[..]).expect("sk"),
@@ -1334,7 +1334,7 @@ mod tests {
 
         let ms: SegwitMiniScript = policy.compile().unwrap();
 
-        let ms_comp_res: Miniscript<bitcoin::PublicKey, Segwitv0> = ms_str!(
+        let ms_comp_res: Miniscript<dogecoin::PublicKey, Segwitv0> = ms_str!(
             "or_d(multi(3,{},{},{},{},{}),\
              and_v(v:thresh(2,c:pk_h({}),\
              ac:pk_h({}),ac:pk_h({})),older(10000)))",
@@ -1367,10 +1367,10 @@ mod tests {
         let mut sigvec = sig.serialize_der().to_vec();
         sigvec.push(1); // sighash all
 
-        let no_sat = HashMap::<bitcoin::PublicKey, BitcoinSig>::new();
-        let mut left_sat = HashMap::<bitcoin::PublicKey, BitcoinSig>::new();
+        let no_sat = HashMap::<dogecoin::PublicKey, BitcoinSig>::new();
+        let mut left_sat = HashMap::<dogecoin::PublicKey, BitcoinSig>::new();
         let mut right_sat =
-            HashMap::<hashes::hash160::Hash, (bitcoin::PublicKey, BitcoinSig)>::new();
+            HashMap::<hashes::hash160::Hash, (dogecoin::PublicKey, BitcoinSig)>::new();
 
         for i in 0..5 {
             left_sat.insert(keys[i], bitcoinsig);
@@ -1438,7 +1438,7 @@ mod tests {
         // and to a ms thresh otherwise.
         // k = 1 (or 2) does not compile, see https://github.com/rust-bitcoin/rust-miniscript/issues/114
         for k in &[10, 15, 21] {
-            let pubkeys: Vec<Concrete<bitcoin::PublicKey>> =
+            let pubkeys: Vec<Concrete<dogecoin::PublicKey>> =
                 keys.iter().map(|pubkey| Concrete::Key(*pubkey)).collect();
             let big_thresh = Concrete::Threshold(*k, pubkeys);
             let big_thresh_ms: SegwitMiniScript = big_thresh.compile().unwrap();
@@ -1466,11 +1466,11 @@ mod tests {
         // or(thresh(52, [pubkey; 52]), thresh(52, [pubkey; 52])) results in a 3642-bytes long
         // witness script with only 54 stack elements
         let (keys, _) = pubkeys_and_a_sig(104);
-        let keys_a: Vec<Concrete<bitcoin::PublicKey>> = keys[..keys.len() / 2]
+        let keys_a: Vec<Concrete<dogecoin::PublicKey>> = keys[..keys.len() / 2]
             .iter()
             .map(|pubkey| Concrete::Key(*pubkey))
             .collect();
-        let keys_b: Vec<Concrete<bitcoin::PublicKey>> = keys[keys.len() / 2..]
+        let keys_b: Vec<Concrete<dogecoin::PublicKey>> = keys[keys.len() / 2..]
             .iter()
             .map(|pubkey| Concrete::Key(*pubkey))
             .collect();
@@ -1490,7 +1490,7 @@ mod tests {
 
         // Hit the maximum witness stack elements limit
         let (keys, _) = pubkeys_and_a_sig(100);
-        let keys: Vec<Concrete<bitcoin::PublicKey>> =
+        let keys: Vec<Concrete<dogecoin::PublicKey>> =
             keys.iter().map(|pubkey| Concrete::Key(*pubkey)).collect();
         let thresh_res: Result<SegwitMiniScript, _> =
             Concrete::Threshold(keys.len(), keys).compile();
@@ -1509,7 +1509,7 @@ mod tests {
     fn shared_limits() {
         // Test the maximum number of OPs with a 67-of-68 multisig
         let (keys, _) = pubkeys_and_a_sig(68);
-        let keys: Vec<Concrete<bitcoin::PublicKey>> =
+        let keys: Vec<Concrete<dogecoin::PublicKey>> =
             keys.iter().map(|pubkey| Concrete::Key(*pubkey)).collect();
         let thresh_res: Result<SegwitMiniScript, _> =
             Concrete::Threshold(keys.len() - 1, keys).compile();
@@ -1522,7 +1522,7 @@ mod tests {
         );
         // For legacy too..
         let (keys, _) = pubkeys_and_a_sig(68);
-        let keys: Vec<Concrete<bitcoin::PublicKey>> =
+        let keys: Vec<Concrete<dogecoin::PublicKey>> =
             keys.iter().map(|pubkey| Concrete::Key(*pubkey)).collect();
         let thresh_res = Concrete::Threshold(keys.len() - 1, keys).compile::<Legacy>();
         let ops_count = thresh_res.clone().and_then(|m| Ok(m.ext.ops_count_sat));

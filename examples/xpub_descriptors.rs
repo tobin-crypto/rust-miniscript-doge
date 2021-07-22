@@ -16,7 +16,7 @@
 
 extern crate miniscript;
 
-use miniscript::bitcoin::{self, secp256k1};
+use miniscript::dogecoin::{self, secp256k1};
 use miniscript::{Descriptor, DescriptorPublicKey, DescriptorTrait, TranslatePk2};
 
 use std::str::FromStr;
@@ -30,7 +30,7 @@ fn main() {
         .unwrap()
         .translate_pk2(|xpk| xpk.derive_public_key(&secp_ctx))
         .unwrap()
-        .address(bitcoin::Network::Bitcoin).unwrap();
+        .address(dogecoin::Network::Bitcoin).unwrap();
 
     let addr_two = Descriptor::<DescriptorPublicKey>::from_str(
             "wsh(sortedmulti(1,xpub69H7F5d8KSRgmmdJg2KhpAK8SR3DjMwAdkxj3ZuxV27CprR9LgpeyGmXUbC6wb7ERfvrnKZjXoUmmDznezpbZb7ap6r1D3tgFxHmwMkQTPH,xpub661MyMwAqRbcFW31YEwpkMuc5THy2PSt5bDMsktWQcFF8syAmRUapSCGu8ED9W6oDMSgv6Zz8idoc4a6mr8BDzTJY47LJhkJ8UB7WEGuduB))",
@@ -38,8 +38,8 @@ fn main() {
         .unwrap()
         .translate_pk2(|xpk| xpk.derive_public_key(&secp_ctx))
         .unwrap()
-        .address(bitcoin::Network::Bitcoin).unwrap();
-    let expected = bitcoin::Address::from_str(
+        .address(dogecoin::Network::Bitcoin).unwrap();
+    let expected = dogecoin::Address::from_str(
         "bc1qpq2cfgz5lktxzr5zqv7nrzz46hsvq3492ump9pz8rzcl8wqtwqcspx5y6a",
     )
     .unwrap();
@@ -54,7 +54,7 @@ fn main() {
         .derive(5)
         .translate_pk2(|xpk| xpk.derive_public_key(&secp_ctx))
         .unwrap()
-        .address(bitcoin::Network::Bitcoin).unwrap();
+        .address(dogecoin::Network::Bitcoin).unwrap();
 
     let addr_two = Descriptor::<DescriptorPublicKey>::from_str(
             "sh(wsh(sortedmulti(1,xpub69H7F5d8KSRgmmdJg2KhpAK8SR3DjMwAdkxj3ZuxV27CprR9LgpeyGmXUbC6wb7ERfvrnKZjXoUmmDznezpbZb7ap6r1D3tgFxHmwMkQTPH/0/0/*,xpub661MyMwAqRbcFW31YEwpkMuc5THy2PSt5bDMsktWQcFF8syAmRUapSCGu8ED9W6oDMSgv6Zz8idoc4a6mr8BDzTJY47LJhkJ8UB7WEGuduB/1/0/*)))",
@@ -63,8 +63,8 @@ fn main() {
         .derive(5)
         .translate_pk2(|xpk| xpk.derive_public_key(&secp_ctx))
         .unwrap()
-        .address(bitcoin::Network::Bitcoin).unwrap();
-    let expected = bitcoin::Address::from_str("325zcVBN5o2eqqqtGwPjmtDd8dJRyYP82s").unwrap();
+        .address(dogecoin::Network::Bitcoin).unwrap();
+    let expected = dogecoin::Address::from_str("325zcVBN5o2eqqqtGwPjmtDd8dJRyYP82s").unwrap();
     assert_eq!(addr_one, expected);
     assert_eq!(addr_two, expected);
 }

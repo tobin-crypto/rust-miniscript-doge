@@ -1,3 +1,19 @@
+# Miniscript for Dogecoin
+
+This repository was forked from
+[rust-miniscript](https://github.com/rust-bitcoin/rust-miniscript) in an effort
+to work with Dogecoin in Rust.
+
+The dogecoin patchset is extremely small, currently all we do is:
+
+- Add this section to the README.
+- Rename the package.
+- Depend upon [rust-dogecoin](https://github.com/tobin-crypto/rust-dogecoin)
+  (dogecoin fork of
+  [rust-bitcoin](https://github.com/rust-bitcoin/rust-bitcoin)).
+
+## ----- Original rust-miniscript README ------
+
 ![Build](https://github.com/rust-bitcoin/rust-miniscript/workflows/Continuous%20integration/badge.svg)
 
 **Minimum Supported Rust Version:** 1.29.0
@@ -25,9 +41,9 @@ including embedded Miniscripts
 * Semantic analysis of Miniscripts and spending policies, with user-defined
 public key types
 * Encoding and decoding Miniscript as Bitcoin Script, given key types that
-are convertible to `bitcoin::PublicKey`
+are convertible to `dogecoin::PublicKey`
 * Determining satisfiability, and optimal witnesses, for a given descriptor;
-completing an unsigned `bitcoin::TxIn` with appropriate data
+completing an unsigned `dogecoin::TxIn` with appropriate data
 * Determining the specific keys, hash preimages and timelocks used to spend
 coins in a given Bitcoin transaction
 
